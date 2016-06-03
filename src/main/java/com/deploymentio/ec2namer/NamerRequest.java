@@ -16,6 +16,10 @@
 
 package com.deploymentio.ec2namer;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 public class NamerRequest {
 
 	private String environment;
@@ -23,6 +27,9 @@ public class NamerRequest {
 	private String group;
 	private String instanceId;
 	private String osConfiguration;
+	
+	private List<RequestedName> requestedNames = Collections.emptyList();
+	private Map<String, String> requestedTags = Collections.emptyMap();
 	
 	public String getEnvironment() {
 		return environment;
@@ -53,5 +60,17 @@ public class NamerRequest {
 	}
 	public void setOsConfiguration(String osConfiguration) {
 		this.osConfiguration = osConfiguration;
+	}
+	public List<RequestedName> getRequestedNames() {
+		return requestedNames;
+	}
+	public void setRequestedNames(List<RequestedName> names) {
+		this.requestedNames = names;
+	}
+	public Map<String, String> getRequestedTags() {
+		return requestedTags;
+	}
+	public void setRequestedTags(Map<String, String> requestedTags) {
+		this.requestedTags = requestedTags;
 	}
 }

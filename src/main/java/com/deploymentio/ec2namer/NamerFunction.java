@@ -53,7 +53,7 @@ public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerRespons
 			resp.setHostname(name.getHostname());
 			resp.setIndex(name.getIndex());
 			
-			// create the entry in route53
+			// create the entries in route53
 			dnsRegistrar.register(req, context, name);
 			
 			// create the tags on ec2 instance
