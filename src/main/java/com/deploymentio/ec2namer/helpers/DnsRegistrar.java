@@ -23,6 +23,19 @@ import com.deploymentio.ec2namer.NamerRequest;
 
 public class DnsRegistrar {
 
+	/**
+	 * Registers the reserved name and all additional names along with their
+	 * health-checks if requested. This will be done in Route53.
+	 * 
+	 * @param req
+	 *            the namer request
+	 * @param context
+	 *            the lambda function execution context
+	 * @param name
+	 *            the reserved name for this instance
+	 * @throws IOException
+	 *             if the DNS name(s) cannot registered in Route53
+	 */
 	public void register(NamerRequest req, Context context, ReservedName name) throws IOException {
 		
 		// TODO: register the name in DNS, overwriting any existing entry

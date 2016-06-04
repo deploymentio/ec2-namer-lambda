@@ -21,9 +21,28 @@ import com.deploymentio.ec2namer.NamerRequest;
 
 public class NamerRequestValidator {
 
+	/**
+	 * Validates that the request is valid
+	 * 
+	 * @param req
+	 *            namer request
+	 * @param context
+	 *            the lambda function execution context
+	 * @return <code>true</code> if request is valid, <code>false</code>
+	 *         otherwise
+	 */
 	public boolean validate(NamerRequest req, Context context) {
 		
 		// TODO: implement this later
+		
+		/*
+		 *  1. We want to check for required fields - like group, environment, instance-id, and base-domain
+		 *  2. Also, need to check everything needs for additional names is provided. For example, if
+		 *  name needs to be health-checked, is the protocol and port provided. If it is an HTTP
+		 *  health-check, is the uri provided.
+		 *  3. If there is a problem we want to log it using the context.getLogger() object and return
+		 *  false. To keep it simple, we can bug out on the first sign of a problem.
+		 */
 		
 		return true;
 	}

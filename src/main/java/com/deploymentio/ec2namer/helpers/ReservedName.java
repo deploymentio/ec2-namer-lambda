@@ -16,6 +16,10 @@
 
 package com.deploymentio.ec2namer.helpers;
 
+/**
+ * Represents the reserved name
+ */
+
 public class ReservedName {
 	
 	private String hostname;

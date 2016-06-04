@@ -23,6 +23,21 @@ import com.deploymentio.ec2namer.NamerRequest;
 
 public class InstanceTagger {
 
+	/**
+	 * Tags the EC2 instance we are naming. The tag's name/values are provided
+	 * in the request. Additionally, if no <code>Name</code> tag is provided,
+	 * this method will add one in the format of
+	 * <code>{environment}:{reserved-name}</code>.
+	 * 
+	 * @param req
+	 *            the namer request
+	 * @param context
+	 *            the lambda function execution context
+	 * @param name
+	 *            the reserved name for this instance
+	 * @throws IOException
+	 *             if the instance cannot be tagged
+	 */
 	public void tag(NamerRequest req, Context context, ReservedName name) throws IOException {
 		
 		// TODO: tag the ec2 instance

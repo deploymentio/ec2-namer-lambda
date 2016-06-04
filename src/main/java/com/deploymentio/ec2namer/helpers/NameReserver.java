@@ -23,12 +23,25 @@ import com.deploymentio.ec2namer.NamerRequest;
 
 public class NameReserver {
 
+	/**
+	 * Reserves the main name based on {@link NamerRequest#getGroup()}. The name
+	 * can be reserved in any permanent storage, but in this case we will record
+	 * it in SDB.
+	 * 
+	 * @param req
+	 *            the namer request
+	 * @param context
+	 *            the lambda function execution context
+	 * @return the reserved name
+	 * @throws IOException
+	 *             if a name cannot be reserved
+	 */
 	public ReservedName reserve(NamerRequest req, Context context) throws IOException {
-		
+
 		// TODO: figure out what is the next available name
-		
+
 		// TODO: reserve the name so others don't take it
-		
+
 		return null;
 	}
 }

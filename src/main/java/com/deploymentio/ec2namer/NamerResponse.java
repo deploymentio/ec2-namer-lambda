@@ -1,5 +1,3 @@
-package com.deploymentio.ec2namer;
-
 /*
  * Copyright 2016 - Deployment IO
  *
@@ -14,6 +12,14 @@ package com.deploymentio.ec2namer;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+
+package com.deploymentio.ec2namer;
+
+/**
+ * The response for a naming request. Indicates if the naming request was
+ * successful or not, the reserved hostname, and the OS script that can be run
+ * to set the hostname of the calling system.
  */
 
 public class NamerResponse {

@@ -23,9 +23,22 @@ import com.deploymentio.ec2namer.NamerRequest;
 
 public class OsScriptGenerator {
 
+	/**
+	 * Generates a script that the requester can run to set their hostname to
+	 * the reserved name.
+	 * 
+	 * @param req
+	 *            the namer request
+	 * @param context
+	 *            the lambda function execution context
+	 * @param name
+	 *            the reserved name for this instance
+	 * @throws IOException
+	 *             if the script cannot be generated
+	 */
 	public String generate(NamerRequest req, Context context, ReservedName name) throws IOException {
 		
-		// TODO: generate the OD script to set the hostname and setup DNS resolvers
+		// TODO: generate the OS script to set the hostname
 		return null;
 	}
 }

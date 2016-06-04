@@ -20,6 +20,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents the naming request
+ */
+
 public class NamerRequest {
 
 	private String environment;
