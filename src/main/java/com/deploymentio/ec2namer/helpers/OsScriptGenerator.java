@@ -18,10 +18,10 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
-import com.amazonaws.services.lambda.runtime.Context;
+import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
-public class OsScriptGenerator {
+public class OsScriptGenerator implements Validator {
 
 	/**
 	 * Generates a script that the requester can run to set their hostname to
@@ -36,9 +36,15 @@ public class OsScriptGenerator {
 	 * @throws IOException
 	 *             if the script cannot be generated
 	 */
-	public String generate(NamerRequest req, Context context, ReservedName name) throws IOException {
+	public String generate(NamerRequest req, LambdaContext context, ReservedName name) throws IOException {
 		
 		// TODO: generate the OS script to set the hostname
 		return null;
+	}
+	
+	@Override
+	public boolean validate(NamerRequest req, LambdaContext context) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

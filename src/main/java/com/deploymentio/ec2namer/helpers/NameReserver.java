@@ -18,10 +18,10 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
-import com.amazonaws.services.lambda.runtime.Context;
+import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
-public class NameReserver {
+public class NameReserver implements Validator {
 
 	/**
 	 * Reserves the main name based on {@link NamerRequest#getGroup()}. The name
@@ -36,12 +36,25 @@ public class NameReserver {
 	 * @throws IOException
 	 *             if a name cannot be reserved
 	 */
-	public ReservedName reserve(NamerRequest req, Context context) throws IOException {
+	public ReservedName reserve(NamerRequest req, LambdaContext context) throws IOException {
 
 		// TODO: figure out what is the next available name
+		// TODO: also, reserve the name so others don't take it
+		
+		// Temporarily, for testing, return the name based on the group name -
+		// no actual reservation is being made here
+		ReservedName name = new ReservedName();
+		name.setHostname(req.getGroup() + "01");
+		name.setIndex(1);
 
-		// TODO: reserve the name so others don't take it
-
-		return null;
+		return name;
 	}
+	
+	
+	@Override
+	public boolean validate(NamerRequest req, LambdaContext context) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 }

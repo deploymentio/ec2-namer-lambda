@@ -50,12 +50,12 @@ public class JsonConversionTest {
 
 	static class SampleFunction extends JsonLambdaFunction<SampleInput, SampleOutput> {
 		@Override
-		public SampleOutput process(SampleInput req, Context context) throws IOException {
+		public SampleOutput process(SampleInput req, LambdaContext context) throws IOException {
 			return new SampleOutput().withValue("bar");
 		}
 
 		@Override
-		public boolean validate(SampleInput req, Context context) {
+		public boolean validate(SampleInput req, LambdaContext context) {
 			return "foo".equals(req.getName());
 		}
 	}

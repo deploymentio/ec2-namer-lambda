@@ -33,23 +33,27 @@ import com.deploymentio.ec2namer.helpers.ReservedName;
 
 public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerResponse> {
 
-	protected NamerRequestValidator validator = new NamerRequestValidator();
 	protected NameReserver reserver = new NameReserver();
 	protected DnsRegistrar dnsRegistrar = new DnsRegistrar();
 	protected InstanceTagger tagger = new InstanceTagger();
 	protected OsScriptGenerator scriptGenerator = new OsScriptGenerator();
 	
+	protected NamerRequestValidator validator = new NamerRequestValidator(
+			reserver,
+			dnsRegistrar,
+			tagger,
+			scriptGenerator);
+	
 	@Override
-	public NamerResponse process(NamerRequest req, Context context) throws IOException {
+	public NamerResponse process(NamerRequest req, LambdaContext context) throws IOException {
 		
-		NamerResponse resp = null;
+		NamerResponse resp = new NamerResponse();
 		
 		// reserve the next available name in DB
 		ReservedName name = reserver.reserve(req, context);
 		if (name != null) {
 
 			// copy the reserved named to the response
-			resp = new NamerResponse();
 			resp.setHostname(name.getHostname());
 			resp.setIndex(name.getIndex());
 			
@@ -62,13 +66,16 @@ public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerRespons
 			// generate os script for setting hostname / name resolution
 			String script = scriptGenerator.generate(req, context, name);
 			resp.setOsScript(script);
+			
+			// setting the response as success
+			resp.setSuccess(true);
 		}
 	
 		return resp;
 	}
 	
 	@Override
-	public boolean validate(NamerRequest req, Context context) {
+	public boolean validate(NamerRequest req, LambdaContext context) {
 		return validator.validate(req, context);
 	}
 }

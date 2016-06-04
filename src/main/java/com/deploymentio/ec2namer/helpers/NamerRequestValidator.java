@@ -16,22 +16,19 @@
 
 package com.deploymentio.ec2namer.helpers;
 
-import com.amazonaws.services.lambda.runtime.Context;
+import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
-public class NamerRequestValidator {
+public class NamerRequestValidator implements Validator {
 
-	/**
-	 * Validates that the request is valid
-	 * 
-	 * @param req
-	 *            namer request
-	 * @param context
-	 *            the lambda function execution context
-	 * @return <code>true</code> if request is valid, <code>false</code>
-	 *         otherwise
-	 */
-	public boolean validate(NamerRequest req, Context context) {
+	private Validator[] validators;
+	
+	public NamerRequestValidator(Validator...validators) {
+		this.validators = validators;
+	}
+	
+	@Override
+	public boolean validate(NamerRequest req, LambdaContext context) {
 		
 		// TODO: implement this later
 		
@@ -44,6 +41,6 @@ public class NamerRequestValidator {
 		 *  false. To keep it simple, we can bug out on the first sign of a problem.
 		 */
 		
-		return true;
+		return false;
 	}
 }

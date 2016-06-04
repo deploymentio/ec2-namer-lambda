@@ -47,7 +47,7 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 	 * @param context the lambda execution context
 	 * @return the response that should be sent back
 	 */
-	public abstract Out process(In req, Context context) throws IOException;
+	public abstract Out process(In req, LambdaContext context) throws IOException;
 	
 	/**
 	 * Validates if the request has all the needed parameters to
@@ -59,7 +59,7 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 	 * @return <code>true</code> if request is valid, <code>false</code>
 	 *         otherwise
 	 */
-	public abstract boolean validate(In req, Context context);
+	public abstract boolean validate(In req, LambdaContext context);
 
 
 	/**
@@ -69,10 +69,11 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 	 * @see com.amazonaws.services.lambda.runtime.RequestStreamHandler#handleRequest(java.io.InputStream,
 	 *      java.io.OutputStream, com.amazonaws.services.lambda.runtime.Context)
 	 */
-	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+	public void handleRequest(InputStream input, OutputStream output, Context runtimeContext) throws IOException {
 
 		In req = null;
 		Out resp = null;
+		LambdaContext context = new LambdaContext(runtimeContext);
 
 		try {
 			// parse the request 
@@ -96,12 +97,15 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 			}
 		}
 
-		mapper.writeValue(output, resp);
-		output.flush();
+		if (resp != null) {
+			mapper.writeValue(output, resp);
+			output.flush();
+		}
+
 		output.close();
 	}
 
-	protected void logIt(Context context, String msg) {
+	protected void logIt(LambdaContext context, String msg) {
 		context.getLogger().log(msg);
 	}
 }

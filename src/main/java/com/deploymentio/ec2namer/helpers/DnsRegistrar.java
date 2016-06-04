@@ -18,11 +18,19 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
-import com.amazonaws.services.lambda.runtime.Context;
+import org.apache.commons.lang3.StringUtils;
+
+import com.amazonaws.services.route53.AmazonRoute53;
+import com.amazonaws.services.route53.AmazonRoute53Client;
+import com.amazonaws.services.route53.model.HostedZone;
+import com.amazonaws.services.route53.model.ListHostedZonesResult;
+import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
-public class DnsRegistrar {
+public class DnsRegistrar implements Validator {
 
+	protected AmazonRoute53 route53 = new AmazonRoute53Client();
+	
 	/**
 	 * Registers the reserved name and all additional names along with their
 	 * health-checks if requested. This will be done in Route53.
@@ -36,9 +44,42 @@ public class DnsRegistrar {
 	 * @throws IOException
 	 *             if the DNS name(s) cannot registered in Route53
 	 */
-	public void register(NamerRequest req, Context context, ReservedName name) throws IOException {
+	public void register(NamerRequest req, LambdaContext context, ReservedName name) throws IOException {
 		
 		// TODO: register the name in DNS, overwriting any existing entry
 		
+		String zoneId = (String) context.get("hosted-zone");
+		
+	}
+	
+	@Override
+	public boolean validate(NamerRequest req, LambdaContext context) {
+		
+		if (StringUtils.isEmpty(req.getBaseDomain())) {
+			context.getLogger().log("BaseDomain is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getEnvironment())) {
+			context.getLogger().log("Environment is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getGroup())) {
+			context.getLogger().log("Group is missing");
+			return false;
+		}
+		
+		ListHostedZonesResult result = route53.listHostedZones();
+		String lookingFor = req.getBaseDomain() + ".";
+		for (HostedZone zone : result.getHostedZones()) {
+			if (lookingFor.equals(zone.getName())) {
+				context.put("hosted-zone", zone.getId());
+				return true;
+			}
+		}
+		
+		context.getLogger().log("HostedZone is not found: BaseDomain=" + req.getBaseDomain());
+		return false;
 	}
 }
