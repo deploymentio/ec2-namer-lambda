@@ -23,6 +23,8 @@ import com.deploymentio.ec2namer.NamerRequest;
 
 public class NameReserver implements Validator {
 
+	protected NamerDB db = new NamerDB();
+	
 	/**
 	 * Reserves the main name based on {@link NamerRequest#getGroup()}. The name
 	 * can be reserved in any permanent storage, but in this case we will record
@@ -38,11 +40,15 @@ public class NameReserver implements Validator {
 	 */
 	public ReservedName reserve(NamerRequest req, LambdaContext context) throws IOException {
 
-		// TODO: figure out what is the next available name
-		// TODO: also, reserve the name so others don't take it
+		// names are based on group and an index. If group is 'bar' and index is
+		// 3, then the name would be 'bar03'.
+		
+		// TODO: use 'db' to figure out what is the next available index
+		// TODO: also, use 'db' to reserve the index so others don't take it
 		
 		// Temporarily, for testing, return the name based on the group name -
-		// no actual reservation is being made here
+		// no actual reservation is being made here. Obviously, this will return
+		// the same index/name everytime it is called.
 		ReservedName name = new ReservedName();
 		name.setHostname(req.getGroup() + "01");
 		name.setIndex(1);
@@ -53,7 +59,8 @@ public class NameReserver implements Validator {
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
-		// TODO Auto-generated method stub
+		// TODO: validate that we have all the info we need in the request
+		// object. This method will be called before reserve() is called.
 		return false;
 	}
 	
