@@ -44,7 +44,8 @@ public class OsScriptGenerator implements Validator {
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
-		// TODO Auto-generated method stub
-		return false;
+		// TODO: validate that we have the os-configuration provided in the
+		// request and that we can generate a script for it
+		return true;
 	}
 }

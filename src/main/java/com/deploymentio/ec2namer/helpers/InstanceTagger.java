@@ -46,7 +46,7 @@ public class InstanceTagger implements Validator {
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
-		// TODO Auto-generated method stub
-		return false;
+		// TODO: make sure that we have the environment in the request
+		return true;
 	}
 }

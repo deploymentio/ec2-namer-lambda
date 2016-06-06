@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.deploymentio.ec2namer;import java.io.IOException;
+package com.deploymentio.ec2namer;
 
-import com.amazonaws.services.lambda.runtime.Context;
+import java.io.IOException;
+
 import com.deploymentio.ec2namer.helpers.DnsRegistrar;
 import com.deploymentio.ec2namer.helpers.InstanceTagger;
 import com.deploymentio.ec2namer.helpers.NameReserver;
@@ -26,9 +27,9 @@ import com.deploymentio.ec2namer.helpers.ReservedName;
 
 /**
  * AWS Lambda function that names instances by reserving the next available name
- * in a DB, creating a DNS entry in Route53, tagging the EC2 instance based on
+ * in a DB, creating DNS entries in Route53, tagging the EC2 instance based on
  * the assigned name, and returning a script which can be used by the caller to
- * set the hostname and set DNS resolution properly in the OS.
+ * set the hostname in the OS.
  */
 
 public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerResponse> {
@@ -72,6 +73,11 @@ public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerRespons
 		}
 	
 		return resp;
+	}
+	
+	@Override
+	public NamerResponse error(LambdaContext context, String error) {
+		return new NamerResponse().withError(error);
 	}
 	
 	@Override

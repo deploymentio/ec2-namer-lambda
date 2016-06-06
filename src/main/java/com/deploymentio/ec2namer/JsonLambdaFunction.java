@@ -29,11 +29,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * An AWS lambda function handler that takes care of processing JSON requests.
  * The response of this lambda function is also converted to JSON. Extenders of
- * this object need to
- * <ul>
- * <li>validate that the request has all the information they need to process
- * the request</li>
- * <li>process the request</li>
+ * this object need to implement the following:
+ * <dl>
+ * <dt>{@link #validate(Object, LambdaContext)}</dt>
+ * <dd>validate that the request has all the information they need to process
+ * the request</dd>
+ * <dt>{@link #process(Object, LambdaContext)}</dt>
+ * <dd>process the request</dd>
+ * <dt>{@link #error(LambdaContext, String)}</dt>
+ * <dd>generate an error response when something goes wrong</dd>
+ * </dl>
  */
 
 public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandler {
@@ -61,6 +66,19 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 	 */
 	public abstract boolean validate(In req, LambdaContext context);
 
+	
+	/**
+	 * Gets the response object that the caller will expect in case the request
+	 * is not valid or something goes wrong during execution of the function
+	 * 
+	 * @param context
+	 *            the lambda execution context
+	 * @param error
+	 *            the error message explaining what went wrong
+	 * @return the response object to send back indicating there was error
+	 *         executing the function
+	 */
+	public abstract Out error(LambdaContext context, String error);
 
 	/**
 	 * The main entry point for all AWS Lambda functions that want to process
@@ -80,32 +98,34 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 			ParameterizedType type = (ParameterizedType) getClass().getGenericSuperclass();
 			Class<In> inputParamClass = (Class<In>) type.getActualTypeArguments()[0];
 			req = mapper.readValue(input, inputParamClass);
-			logIt(context, "Received: Request=" + mapper.writeValueAsString(req));
+			log(context, "Request=" + mapper.writeValueAsString(req));
 		} catch (JsonProcessingException e) {
-			logIt(context, "Error parsing request: Error=" + e.getMessage());
-			throw new IOException("Error parsing request: Error=" + e.getMessage());
+			log(context, "Error parsing request: Error=" + e.getMessage());
+			resp = error(context, "Error parsing request: Error=" + e.getMessage());
 		}
 
 		if (req != null) {
 			// validate the request
 			if (validate(req, context)) {
-				logIt(context, "Request is valid, attempting to process request");
+				log(context, "Request is valid, attempting to process request");
 				resp = process(req, context);
 			} else {
-				logIt(context, "Request is not valid");
-				throw new IOException("Request is not valid");
+				log(context, "Request is not valid");
+				resp = error(context, "Request is not valid");
 			}
 		}
 
-		if (resp != null) {
-			mapper.writeValue(output, resp);
-			output.flush();
+		if (resp == null) {
+			resp = error(context, "Something went wrong");
 		}
 
+		log(context, "Response=" + mapper.writeValueAsString(resp));
+		mapper.writeValue(output, resp);
+		output.flush();
 		output.close();
 	}
 
-	protected void logIt(LambdaContext context, String msg) {
+	protected void log(LambdaContext context, String msg) {
 		context.getLogger().log(msg);
 	}
 }

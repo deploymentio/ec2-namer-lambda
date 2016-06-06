@@ -25,6 +25,7 @@ package com.deploymentio.ec2namer;
 public class NamerResponse {
 
 	private boolean success;
+	private String error;
 	private int index;
 	private String hostname;
 	private String osScript;
@@ -34,6 +35,16 @@ public class NamerResponse {
 	}
 	public void setSuccess(boolean success) {
 		this.success = success;
+	}
+	public String getError() {
+		return error;
+	}
+	public void setError(String error) {
+		this.error = error;
+	}
+	public NamerResponse withError(String error) {
+		setError(error);
+		return this;
 	}
 	public int getIndex() {
 		return index;

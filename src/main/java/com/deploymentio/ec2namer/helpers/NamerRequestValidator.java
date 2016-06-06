@@ -21,26 +21,20 @@ import com.deploymentio.ec2namer.NamerRequest;
 
 public class NamerRequestValidator implements Validator {
 
-	private Validator[] validators;
+	private Validator[] internalValidators;
 	
 	public NamerRequestValidator(Validator...validators) {
-		this.validators = validators;
+		this.internalValidators = validators;
 	}
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
 		
-		// TODO: implement this later
+		// TODO: we want to check with each internal-validators and ask them to validate
+		// the request. If they all validate, then we return true. At the first internal
+		// validation failure, we should bug out - returning false
 		
-		/*
-		 *  1. We want to check for required fields - like group, environment, instance-id, and base-domain
-		 *  2. Also, need to check everything needs for additional names is provided. For example, if
-		 *  name needs to be health-checked, is the protocol and port provided. If it is an HTTP
-		 *  health-check, is the uri provided.
-		 *  3. If there is a problem we want to log it using the context.getLogger() object and return
-		 *  false. To keep it simple, we can bug out on the first sign of a problem.
-		 */
-		
-		return false;
+		// for now returning true
+		return true;
 	}
 }

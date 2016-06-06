@@ -59,9 +59,12 @@ public class NameReserver implements Validator {
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
-		// TODO: validate that we have all the info we need in the request
-		// object. This method will be called before reserve() is called.
-		return false;
+		
+		// TODO: validate that we have the required fields in the request:
+		// group, environment, instance-id, and base-domain. This method will be
+		// called before reserve() is called.
+		
+		return true;
 	}
 	
 }
