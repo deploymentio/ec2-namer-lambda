@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * </dl>
  */
 
-public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandler {
+public abstract class JsonLambdaFunction<In, Out, Err> implements RequestStreamHandler {
 
 	protected ObjectMapper mapper = new ObjectMapper();
 
@@ -78,7 +78,7 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 	 * @return the response object to send back indicating there was error
 	 *         executing the function
 	 */
-	public abstract Out error(LambdaContext context, String error);
+	public abstract Err error(LambdaContext context, String error);
 
 	/**
 	 * The main entry point for all AWS Lambda functions that want to process
@@ -91,6 +91,8 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 
 		In req = null;
 		Out resp = null;
+		Err err = null;
+		
 		LambdaContext context = new LambdaContext(runtimeContext);
 
 		try {
@@ -101,7 +103,7 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 			log(context, "Request=" + mapper.writeValueAsString(req));
 		} catch (JsonProcessingException e) {
 			log(context, "Error parsing request: Error=" + e.getMessage());
-			resp = error(context, "Error parsing request: Error=" + e.getMessage());
+			err = error(context, "Error parsing request: Error=" + e.getMessage());
 		}
 
 		if (req != null) {
@@ -111,16 +113,21 @@ public abstract class JsonLambdaFunction<In, Out> implements RequestStreamHandle
 				resp = process(req, context);
 			} else {
 				log(context, "Request is not valid");
-				resp = error(context, "Request is not valid");
+				err = error(context, "Request is not valid");
 			}
 		}
 
-		if (resp == null) {
-			resp = error(context, "Something went wrong");
+		if (resp != null) {
+			log(context, "Response=" + mapper.writeValueAsString(resp));
+			mapper.writeValue(output, resp);
+		} else {
+			if (err == null) {
+				err = error(context, "Something went wrong");
+			}
+			log(context, "Response=" + mapper.writeValueAsString(err));
+			mapper.writeValue(output, err);
 		}
 
-		log(context, "Response=" + mapper.writeValueAsString(resp));
-		mapper.writeValue(output, resp);
 		output.flush();
 		output.close();
 	}

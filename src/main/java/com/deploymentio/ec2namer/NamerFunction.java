@@ -32,7 +32,7 @@ import com.deploymentio.ec2namer.helpers.ReservedName;
  * set the hostname in the OS.
  */
 
-public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerResponse> {
+public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerResponse, NamerResponse> {
 
 	protected NameReserver reserver = new NameReserver();
 	protected DnsRegistrar dnsRegistrar = new DnsRegistrar();

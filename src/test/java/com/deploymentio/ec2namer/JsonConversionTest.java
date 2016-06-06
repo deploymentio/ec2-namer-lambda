@@ -48,7 +48,7 @@ public class JsonConversionTest {
 		when(context.getLogger()).thenReturn(logger);
 	}
 
-	static class SampleFunction extends JsonLambdaFunction<SampleInput, SampleOutput> {
+	static class SampleFunction extends JsonLambdaFunction<SampleInput, SampleOutput, String> {
 		@Override
 		public SampleOutput process(SampleInput req, LambdaContext context) throws IOException {
 			return new SampleOutput().withValue("bar");
@@ -57,6 +57,11 @@ public class JsonConversionTest {
 		@Override
 		public boolean validate(SampleInput req, LambdaContext context) {
 			return "foo".equals(req.getName());
+		}
+		
+		@Override
+		public String error(LambdaContext context, String error) {
+			return "error";
 		}
 	}
 
@@ -69,15 +74,21 @@ public class JsonConversionTest {
 		assertEquals("{\"value\":\"bar\"}", outStream.toString());
 	}
 	
-	@Test(expected=IOException.class)
+	@Test
 	public void testInputValidationFails() throws Exception {
 		InputStream inStream = new ByteArrayInputStream("{\"name\":\"not-foo\"}".getBytes(StandardCharsets.UTF_8));
-		fn.handleRequest(inStream, new ByteArrayOutputStream(), context);
+		OutputStream outStream = new ByteArrayOutputStream();
+
+		fn.handleRequest(inStream, outStream, context);
+		assertEquals("\"error\"", outStream.toString());
 	}
 	
-	@Test(expected=IOException.class)
+	@Test
 	public void testInputJsonConversionFails() throws Exception {
 		InputStream inStream = new ByteArrayInputStream("{\"notName\":\"foo\"}".getBytes(StandardCharsets.UTF_8));
-		fn.handleRequest(inStream, new ByteArrayOutputStream(), context);
+		OutputStream outStream = new ByteArrayOutputStream();
+
+		fn.handleRequest(inStream, outStream, context);
+		assertEquals("\"error\"", outStream.toString());
 	}
 }
