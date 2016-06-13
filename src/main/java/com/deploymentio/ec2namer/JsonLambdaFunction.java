@@ -100,39 +100,35 @@ public abstract class JsonLambdaFunction<In, Out, Err> implements RequestStreamH
 			ParameterizedType type = (ParameterizedType) getClass().getGenericSuperclass();
 			Class<In> inputParamClass = (Class<In>) type.getActualTypeArguments()[0];
 			req = mapper.readValue(input, inputParamClass);
-			log(context, "Request=" + mapper.writeValueAsString(req));
+			context.log("Request=" + mapper.writeValueAsString(req));
 		} catch (JsonProcessingException e) {
-			log(context, "Error parsing request: Error=" + e.getMessage());
+			context.log("Error parsing request: Error=" + e.getMessage());
 			err = error(context, "Error parsing request: Error=" + e.getMessage());
 		}
 
 		if (req != null) {
 			// validate the request
 			if (validate(req, context)) {
-				log(context, "Request is valid, attempting to process request");
+				context.log("Request is valid, attempting to process request");
 				resp = process(req, context);
 			} else {
-				log(context, "Request is not valid");
+				context.log("Request is not valid");
 				err = error(context, "Request is not valid");
 			}
 		}
 
 		if (resp != null) {
-			log(context, "Response=" + mapper.writeValueAsString(resp));
+			context.log("Response=" + mapper.writeValueAsString(resp));
 			mapper.writeValue(output, resp);
 		} else {
 			if (err == null) {
 				err = error(context, "Something went wrong");
 			}
-			log(context, "Response=" + mapper.writeValueAsString(err));
+			context.log("Response=" + mapper.writeValueAsString(err));
 			mapper.writeValue(output, err);
 		}
 
 		output.flush();
 		output.close();
-	}
-
-	protected void log(LambdaContext context, String msg) {
-		context.getLogger().log(msg);
 	}
 }

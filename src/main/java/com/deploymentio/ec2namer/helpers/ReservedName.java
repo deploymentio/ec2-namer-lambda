@@ -22,19 +22,24 @@ package com.deploymentio.ec2namer.helpers;
 
 public class ReservedName {
 	
-	private String hostname;
+	private String group;
 	private int index;
 	
-	public String getHostname() {
-		return hostname;
+	public ReservedName(String group, int index) {
+		this.group = group;
+		this.index = index;
 	}
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
+	public String getHostname() {
+		return String.format("%s%03d", group, index);
 	}
 	public int getIndex() {
 		return index;
 	}
-	public void setIndex(int index) {
-		this.index = index;
+	public String getGroup() {
+		return group;
+	}
+	@Override
+	public String toString() {
+		return getHostname();
 	}
 }

@@ -16,6 +16,8 @@
 
 package com.deploymentio.ec2namer;
 
+import com.amazonaws.services.route53.model.HealthCheckType;
+
 /**
  * A DNS name registration request in addition to the group based name given to
  * an instance. These names will be weighted CNAME entries in Route53 with
@@ -33,7 +35,7 @@ public class RequestedName {
 	private int weight = 100; 
 
 	private boolean healthChecked;
-	private HealthCheckProtocol healthCheckProtocol;
+	private HealthCheckType healthCheckType;
 	private int healthCheckPort;
 	private String healthCheckUri;
 
@@ -49,11 +51,11 @@ public class RequestedName {
 	public void setHealthChecked(boolean healthChecked) {
 		this.healthChecked = healthChecked;
 	}
-	public HealthCheckProtocol getHealthCheckProtocol() {
-		return healthCheckProtocol;
+	public HealthCheckType getHealthCheckType() {
+		return healthCheckType;
 	}
-	public void setHealthCheckProtocol(HealthCheckProtocol healthCheckProtocol) {
-		this.healthCheckProtocol = healthCheckProtocol;
+	public void setHealthCheckType(HealthCheckType healthCheckType) {
+		this.healthCheckType = healthCheckType;
 	}
 	public int getHealthCheckPort() {
 		return healthCheckPort;

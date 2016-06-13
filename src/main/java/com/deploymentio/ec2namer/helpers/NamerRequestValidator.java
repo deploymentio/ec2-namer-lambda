@@ -30,11 +30,15 @@ public class NamerRequestValidator implements Validator {
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
 		
-		// TODO: we want to check with each internal-validators and ask them to validate
-		// the request. If they all validate, then we return true. At the first internal
-		// validation failure, we should bug out - returning false
+		for (Validator validator : internalValidators) {
+			if (!validator.validate(req, context)) {
+				context.log("Request is INVALID: By=" + validator.getClass().getName());
+				return false;
+			} else {
+				context.log("Request is VALID: By=" + validator.getClass().getName());
+			}
+		}
 		
-		// for now returning true
 		return true;
 	}
 }

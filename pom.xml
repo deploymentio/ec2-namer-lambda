@@ -28,6 +28,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<aws.sdk.version>1.11.4</aws.sdk.version>
 	</properties>
 
 	<dependencies>
@@ -48,13 +49,18 @@
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-simpledb</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-ec2</artifactId>
-			<version>1.11.4</version>
+			<version>${aws.sdk.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-route53</artifactId>
-			<version>1.11.4</version>
+			<version>${aws.sdk.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -71,7 +77,6 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	

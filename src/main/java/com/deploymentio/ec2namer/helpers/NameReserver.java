@@ -41,19 +41,23 @@ public class NameReserver implements Validator {
 	public ReservedName reserve(NamerRequest req, LambdaContext context) throws IOException {
 
 		// names are based on group and an index. If group is 'bar' and index is
-		// 3, then the name would be 'bar03'.
+		// 12, then the name would be 'bar012'.
 		
-		// TODO: use 'db' to figure out what is the next available index
-		// TODO: also, use 'db' to reserve the index so others don't take it
+		/*
+		 * TODO: use 'db' to figure out what is the next available index, use the following rules
+		 *       - first valid index to return is 1
+		 *       - last valid index is 999
+		 *       - gaps should be filled first - if 1, 3, and 4 are in use, return 2
+		 *       - if all indexes are in use 1-999, don't reserve anything, and return null
+		 *       - if any of the existing index in use has the same instance-id as this request, reuse that index (this should be highest priority)
+		 *       
+		 * TODO: also, use 'db' to reserve the index so others don't take it
+		 */
 		
 		// Temporarily, for testing, return the name based on the group name -
 		// no actual reservation is being made here. Obviously, this will return
 		// the same index/name everytime it is called.
-		ReservedName name = new ReservedName();
-		name.setHostname(req.getGroup() + "01");
-		name.setIndex(1);
-
-		return name;
+		return new ReservedName(req.getGroup(), 1);
 	}
 	
 	

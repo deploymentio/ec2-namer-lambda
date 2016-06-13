@@ -43,7 +43,6 @@ public class JsonConversionTest {
 
 		fn = new SampleFunction();
 		context = mock(Context.class);
-
 		LambdaLogger logger = mock(LambdaLogger.class);
 		when(context.getLogger()).thenReturn(logger);
 	}

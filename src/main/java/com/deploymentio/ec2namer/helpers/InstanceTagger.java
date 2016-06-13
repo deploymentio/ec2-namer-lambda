@@ -17,12 +17,22 @@
 package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.CreateTagsRequest;
+import com.amazonaws.services.ec2.model.Tag;
 import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
 public class InstanceTagger implements Validator {
 
+	protected AmazonEC2 ec2 = new AmazonEC2Client();
+	
 	/**
 	 * Tags the EC2 instance we are naming. The tag's name/values are provided
 	 * in the request. Additionally, if no <code>Name</code> tag is provided,
@@ -39,14 +49,36 @@ public class InstanceTagger implements Validator {
 	 *             if the instance cannot be tagged
 	 */
 	public void tag(NamerRequest req, LambdaContext context, ReservedName name) throws IOException {
+
+		HashMap<String, String> map = new HashMap<>(req.getRequestedTags());
+		if (!map.containsKey("Name")) {
+			map.put("Name", req.getEnvironment() + ":" + name.getHostname());
+		}
+
+		ArrayList<Tag> tags = new ArrayList<>();
+		for(String key : map.keySet()) {
+			String val = map.get(key);
+			tags.add(new Tag().withKey(key).withValue(val));
+		}
 		
-		// TODO: tag the ec2 instance
-		
+		ec2.createTags(new CreateTagsRequest()
+			.withResources(req.getInstanceId())
+			.withTags(tags));
 	}
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
-		// TODO: make sure that we have the environment in the request
+		
+		if (StringUtils.isEmpty(req.getInstanceId())) {
+			context.log("InstanceId is missing");
+			return false;
+		}
+
+		if (StringUtils.isEmpty(req.getEnvironment())) {
+			context.log("Environment is missing");
+			return false;
+		}
+		
 		return true;
 	}
 }

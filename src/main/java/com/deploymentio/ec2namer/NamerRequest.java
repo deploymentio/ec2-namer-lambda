@@ -31,6 +31,7 @@ public class NamerRequest {
 	private String group;
 	private String instanceId;
 	private String osConfiguration;
+	private boolean alwaysUsePublicName;
 	
 	private List<RequestedName> requestedNames = Collections.emptyList();
 	private Map<String, String> requestedTags = Collections.emptyMap();
@@ -76,5 +77,14 @@ public class NamerRequest {
 	}
 	public void setRequestedTags(Map<String, String> requestedTags) {
 		this.requestedTags = requestedTags;
+	}
+	public boolean isAlwaysUsePublicName() {
+		return alwaysUsePublicName;
+	}
+	public void setAlwaysUsePublicName(boolean usePublicName) {
+		this.alwaysUsePublicName = usePublicName;
+	}
+	public String createFqdn(String name) {
+		return name + "." + getEnvironment() + "." + getBaseDomain();
 	}
 }

@@ -18,10 +18,13 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
+import com.amazonaws.services.ec2.model.Instance;
 import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
 public class OsScriptGenerator implements Validator {
+
+	protected Ec2InstanceLookup instanceLookup = new Ec2InstanceLookup();
 
 	/**
 	 * Generates a script that the requester can run to set their hostname to
@@ -37,15 +40,30 @@ public class OsScriptGenerator implements Validator {
 	 *             if the script cannot be generated
 	 */
 	public String generate(NamerRequest req, LambdaContext context, ReservedName name) throws IOException {
+	
+		Instance inst = instanceLookup.lookup(context, req.getInstanceId());
+		StringBuilder b = new StringBuilder()
+				
+		/* append hostname to /etc/hosts */
+		.append("printf '\\n# ec2-namer\\n%s %s %s\\n' '").append(inst.getPrivateIpAddress()).append("' '")
+		.append(req.createFqdn(name.getHostname())).append("' '").append(name.getHostname())
+		.append("' >> /etc/hosts\n")
 		
-		// TODO: generate the OS script to set the hostname
-		return null;
+		/* set hostname */
+		.append("hostname ").append(name.getHostname()).append("\n")
+		
+		/* setup domain lookups */
+		.append("printf 'prepend domain-name \"%s \";' '").append(req.getEnvironment()).append(".")
+		.append(req.getBaseDomain()).append("' >> /etc/dhcp/dhclient.conf\n")
+
+		/* restart dhcp */
+		.append("ifdown eth0; ifup eth0\n");
+		
+		return b.toString();
 	}
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
-		// TODO: validate that we have the os-configuration provided in the
-		// request and that we can generate a script for it
 		return true;
 	}
 }
