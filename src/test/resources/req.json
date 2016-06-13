@@ -1,0 +1,25 @@
+{
+  "environment": "test",
+  "baseDomain": "deploymentio.com",
+  "group": "web",
+  "osConfiguration": "ubuntu-1604",
+  "alwaysUsePublicName": true,
+  "requestedNames": [
+    {
+      "name": "foo",
+      "weight": 100,
+      "healthChecked": true,
+      "healthCheckType": "HTTP",
+      "healthCheckPort": 80,
+      "healthCheckUri": "/"
+    },
+    {
+      "name": "bar",
+      "weight": 100,
+      "healthChecked": false
+    }
+  ],
+  "requestedTags": {
+    "hello": "there"
+  }
+}

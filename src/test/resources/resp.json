@@ -1,0 +1,1 @@
+{"success":true,"error":null,"index":1,"hostname":"web001","osScript":"printf '\\n# ec2-namer\\n%s %s\\n' '172.31.1.71' 'web001.test.deploymentio.com' >> /etc/hosts\nhostname web001\nprintf 'prepend domain-name \"%s \";' 'test.deploymentio.com' >> /etc/dhcp/dhclient.conf\nifdown eth0; ifup eth0\n"}
