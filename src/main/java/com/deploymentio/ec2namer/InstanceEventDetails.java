@@ -16,26 +16,26 @@
 
 package com.deploymentio.ec2namer;
 
-import java.util.HashMap;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.amazonaws.services.lambda.runtime.Context;
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class InstanceEventDetails {
 
-@SuppressWarnings("serial")
-public class LambdaContext extends HashMap<String, Object> {
-
-	private Context runtimeContext;
-
-	public LambdaContext(Context runtimeContext) {
-		super();
-		this.runtimeContext = runtimeContext;
-		
-	}
-
-	public void log(String msg) {
-		runtimeContext.getLogger().log(msg);
-	}
+	@JsonProperty("instance-id")
+	private String instanceId;
+	private String state;
 	
-	public Context getRuntimeContext() {
-		return runtimeContext;
+	public String getInstanceId() {
+		return instanceId;
+	}
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
 	}
 }

@@ -18,6 +18,7 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
+import com.deploymentio.ec2namer.DenameRequest;
 import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
@@ -60,6 +61,25 @@ public class NameReserver implements Validator {
 		return new ReservedName(req.getGroup(), 1);
 	}
 	
+
+	/**
+	 * Unreserves the name for the given instance-id
+	 * 
+	 * @param instanceId
+	 *            the instance ID for which the name needs to be unreserved
+	 * @param context
+	 *            the lambda function execution context
+	 * @return the details of unreserving of the name
+	 * @throws IOException
+	 *             if the name cannot be unreserved
+	 */
+	public DenameRequest unreserve(String instanceId, LambdaContext context) throws IOException {
+		DenameRequest request = db.findReservedNameForDenaming(instanceId);
+		if (request != null) {
+			db.unreserve(request);
+		}
+		return request;
+	}
 	
 	@Override
 	public boolean validate(NamerRequest req, LambdaContext context) {
