@@ -16,10 +16,12 @@
 
 package com.deploymentio.ec2namer;
 
+import java.io.IOException;
+
 import com.deploymentio.ec2namer.helpers.DnsRegistrar;
 import com.deploymentio.ec2namer.helpers.NameReserver;
 
-public class DenameFunction extends JsonLambdaFunction<InstanceEvent, Boolean, Boolean>{
+public class DenameFunction extends JsonLambdaFunction<InstanceEvent, Boolean, Boolean> {
 
 	protected NameReserver reserver = new NameReserver();
 	protected DnsRegistrar dnsRegistrar = new DnsRegistrar();
@@ -29,7 +31,8 @@ public class DenameFunction extends JsonLambdaFunction<InstanceEvent, Boolean, B
 		return Boolean.FALSE;
 	}
 	
-	public Boolean process(InstanceEvent evt, LambdaContext context) throws java.io.IOException {
+	@Override
+	public Boolean process(InstanceEvent evt, LambdaContext context) throws IOException {
 		DenameRequest request = reserver.unreserve(evt.getDetails().getInstanceId(), context);
 		if (request != null) {
 			dnsRegistrar.deregister(request, context);
