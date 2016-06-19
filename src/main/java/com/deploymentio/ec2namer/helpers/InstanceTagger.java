@@ -27,7 +27,7 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
 import com.amazonaws.services.ec2.model.Tag;
 import com.deploymentio.ec2namer.LambdaContext;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 
 public class InstanceTagger implements Validator {
 
@@ -48,7 +48,7 @@ public class InstanceTagger implements Validator {
 	 * @throws IOException
 	 *             if the instance cannot be tagged
 	 */
-	public void tag(NamerRequest req, LambdaContext context, ReservedName name) throws IOException {
+	public void tag(NamingRequest req, LambdaContext context, ReservedName name) throws IOException {
 
 		HashMap<String, String> map = new HashMap<>(req.getRequestedTags());
 		if (!map.containsKey("Name")) {
@@ -67,7 +67,7 @@ public class InstanceTagger implements Validator {
 	}
 	
 	@Override
-	public boolean validate(NamerRequest req, LambdaContext context) {
+	public boolean validate(NamingRequest req, LambdaContext context) {
 		
 		if (StringUtils.isEmpty(req.getInstanceId())) {
 			context.log("InstanceId is missing");

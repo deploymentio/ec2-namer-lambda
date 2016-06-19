@@ -17,7 +17,7 @@
 package com.deploymentio.ec2namer.helpers;
 
 import com.deploymentio.ec2namer.LambdaContext;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 
 public class NamerRequestValidator implements Validator {
 
@@ -28,7 +28,7 @@ public class NamerRequestValidator implements Validator {
 	}
 	
 	@Override
-	public boolean validate(NamerRequest req, LambdaContext context) {
+	public boolean validate(NamingRequest req, LambdaContext context) {
 		
 		for (Validator validator : internalValidators) {
 			if (!validator.validate(req, context)) {

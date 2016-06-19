@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.deploymentio.ec2namer.helpers.ReservedName;
 
-public class DenameRequest implements InstanceNamingRequest {
+public class DenamingRequest implements InstanceNamingRequest {
 
 	private String instanceId;
 	private String environment;

@@ -1,7 +1,7 @@
 package com.deploymentio.ec2namer.helpers;
 
 import com.deploymentio.ec2namer.LambdaContext;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 
 public interface Validator {
 
@@ -15,5 +15,5 @@ public interface Validator {
 	 * @return <code>true</code> if request is valid, <code>false</code>
 	 *         otherwise
 	 */
-	public boolean validate(NamerRequest req, LambdaContext context) ;
+	public boolean validate(NamingRequest req, LambdaContext context) ;
 }

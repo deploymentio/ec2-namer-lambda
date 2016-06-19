@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.deploymentio.ec2namer.LambdaContext;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 
 public class OsScriptGenerator implements Validator {
 
@@ -39,7 +39,7 @@ public class OsScriptGenerator implements Validator {
 	 * @throws IOException
 	 *             if the script cannot be generated
 	 */
-	public String generate(NamerRequest req, LambdaContext context, ReservedName name) throws IOException {
+	public String generate(NamingRequest req, LambdaContext context, ReservedName name) throws IOException {
 	
 		Instance inst = instanceLookup.lookup(context, req.getInstanceId());
 		StringBuilder b = new StringBuilder()
@@ -63,7 +63,7 @@ public class OsScriptGenerator implements Validator {
 	}
 	
 	@Override
-	public boolean validate(NamerRequest req, LambdaContext context) {
+	public boolean validate(NamingRequest req, LambdaContext context) {
 		return true;
 	}
 }

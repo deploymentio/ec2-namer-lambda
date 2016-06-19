@@ -18,16 +18,16 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
-import com.deploymentio.ec2namer.DenameRequest;
+import com.deploymentio.ec2namer.DenamingRequest;
 import com.deploymentio.ec2namer.LambdaContext;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 
 public class NameReserver implements Validator {
 
 	protected NamerDB db = new NamerDB();
 	
 	/**
-	 * Reserves the main name based on {@link NamerRequest#getGroup()}. The name
+	 * Reserves the main name based on {@link NamingRequest#getGroup()}. The name
 	 * can be reserved in any permanent storage, but in this case we will record
 	 * it in SDB.
 	 * 
@@ -39,7 +39,7 @@ public class NameReserver implements Validator {
 	 * @throws IOException
 	 *             if a name cannot be reserved
 	 */
-	public ReservedName reserve(NamerRequest req, LambdaContext context) throws IOException {
+	public ReservedName reserve(NamingRequest req, LambdaContext context) throws IOException {
 
 		// names are based on group and an index. If group is 'bar' and index is
 		// 12, then the name would be 'bar012'.
@@ -73,16 +73,18 @@ public class NameReserver implements Validator {
 	 * @throws IOException
 	 *             if the name cannot be unreserved
 	 */
-	public DenameRequest unreserve(String instanceId, LambdaContext context) throws IOException {
-		DenameRequest request = db.findReservedNameForDenaming(instanceId);
-		if (request != null) {
-			db.unreserve(request);
-		}
-		return request;
+	public DenamingRequest unreserve(String instanceId, LambdaContext context) throws IOException {
+		
+		// need to first find the reserved name from DB (if it exists) given
+		// instance-id
+		//
+		// if found, need to un-reserve it - again through the db
+		
+		return null;
 	}
 	
 	@Override
-	public boolean validate(NamerRequest req, LambdaContext context) {
+	public boolean validate(NamingRequest req, LambdaContext context) {
 		
 		// TODO: validate that we have the required fields in the request:
 		// group, environment, instance-id, and base-domain. This method will be

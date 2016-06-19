@@ -22,18 +22,18 @@ import org.mockito.Mockito;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.deploymentio.ec2namer.LambdaContext;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 
 public class NameReserverTest {
 
-	private NamerRequest goodRequest;
+	private NamingRequest goodRequest;
 	private LambdaContext context;
 	private NameReserver reserver;
 	
 	@Before
 	public void setup() {
 		
-		goodRequest = new NamerRequest();
+		goodRequest = new NamingRequest();
 		goodRequest.setBaseDomain("base.com");
 		goodRequest.setEnvironment("env");
 		goodRequest.setInstanceId("i-7");
@@ -67,7 +67,7 @@ public class NameReserverTest {
 
 	@Test
 	public void testValidateRequiredInfoMissing() {
-		NamerRequest req = new NamerRequest();
+		NamingRequest req = new NamingRequest();
 		boolean validated = reserver.validate(req, context);
 		assertFalse("Validation should fail", validated);
 	}
@@ -104,7 +104,7 @@ public class NameReserverTest {
 	}
 	
 	private void assertReservedCorrectIndex(TreeSet<IndexInUse> inUse, int expectedIndexToReserve) throws IOException {
-		when(reserver.db.getGroupIndxesInUse(any(NamerRequest.class))).thenReturn(inUse);
+		when(reserver.db.getGroupIndxesInUse(any(NamingRequest.class))).thenReturn(inUse);
 		reserver.validate(goodRequest, context);
 
 		ReservedName name = reserver.reserve(goodRequest, context);
@@ -115,11 +115,11 @@ public class NameReserverTest {
 
 	@Test
 	public void testReserveNameWithMaxExistingReservations() throws IOException {
-		when(reserver.db.getGroupIndxesInUse(any(NamerRequest.class))).thenReturn(getMockIndexesInUseRange(999));
+		when(reserver.db.getGroupIndxesInUse(any(NamingRequest.class))).thenReturn(getMockIndexesInUseRange(999));
 		reserver.validate(goodRequest, context);
 
 		ReservedName name = reserver.reserve(goodRequest, context);
 		assertNull(name);
-		verify(reserver.db, never()).reserveGroupIndex(any(NamerRequest.class), Mockito.anyInt());
+		verify(reserver.db, never()).reserveGroupIndex(any(NamingRequest.class), Mockito.anyInt());
 	}
 }

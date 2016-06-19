@@ -47,10 +47,10 @@ import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 import com.amazonaws.services.route53.model.Tag;
 import com.amazonaws.services.route53.model.TagResourceType;
-import com.deploymentio.ec2namer.DenameRequest;
+import com.deploymentio.ec2namer.DenamingRequest;
 import com.deploymentio.ec2namer.InstanceNamingRequest;
 import com.deploymentio.ec2namer.LambdaContext;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 import com.deploymentio.ec2namer.RequestedName;
 
 public class DnsRegistrar implements Validator {
@@ -58,7 +58,7 @@ public class DnsRegistrar implements Validator {
 	protected AmazonRoute53 route53 = new AmazonRoute53Client();
 	protected Ec2InstanceLookup instanceLookup = new Ec2InstanceLookup();
 	
-	public void deregister(DenameRequest req, LambdaContext context) throws IOException {
+	public void deregister(DenamingRequest req, LambdaContext context) throws IOException {
 		
 		List<Change> changes = new ArrayList<Change>() ;
 		
@@ -125,7 +125,7 @@ public class DnsRegistrar implements Validator {
 	 * @throws IOException
 	 *             if the DNS name(s) cannot registered in Route53
 	 */
-	public void register(NamerRequest req, LambdaContext context, ReservedName name) throws IOException {
+	public void register(NamingRequest req, LambdaContext context, ReservedName name) throws IOException {
 		
 		List<Change> changes = new ArrayList<Change>() ;
 		
@@ -165,7 +165,7 @@ public class DnsRegistrar implements Validator {
 		return new Change(action, set);
 	}
 	
-	protected Change getCreateChange(NamerRequest req, LambdaContext context, RequestedName additionalName, String assignedName) {
+	protected Change getCreateChange(NamingRequest req, LambdaContext context, RequestedName additionalName, String assignedName) {
 
 		String fullAssignedName = req.createFqdn(assignedName);
 		String fullAdditionalName =  req.createFqdn(additionalName.getName());
@@ -240,7 +240,7 @@ public class DnsRegistrar implements Validator {
 	}
 	
 	@Override
-	public boolean validate(NamerRequest req, LambdaContext context) {
+	public boolean validate(NamingRequest req, LambdaContext context) {
 		
 		if (StringUtils.isEmpty(req.getBaseDomain())) {
 			context.log("BaseDomain is missing");

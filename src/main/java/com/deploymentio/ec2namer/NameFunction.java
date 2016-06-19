@@ -21,6 +21,7 @@ import java.io.IOException;
 import com.deploymentio.ec2namer.helpers.DnsRegistrar;
 import com.deploymentio.ec2namer.helpers.InstanceTagger;
 import com.deploymentio.ec2namer.helpers.NameReserver;
+import com.deploymentio.ec2namer.helpers.NameReserverSimple;
 import com.deploymentio.ec2namer.helpers.NamerRequestValidator;
 import com.deploymentio.ec2namer.helpers.OsScriptGenerator;
 import com.deploymentio.ec2namer.helpers.ReservedName;
@@ -32,9 +33,9 @@ import com.deploymentio.ec2namer.helpers.ReservedName;
  * set the hostname in the OS.
  */
 
-public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerResponse, NamerResponse> {
+public class NameFunction extends JsonLambdaFunction<NamingRequest, NamingResponse, NamingResponse> {
 
-	protected NameReserver reserver = new NameReserver();
+	protected NameReserver reserver = new NameReserverSimple();
 	protected DnsRegistrar dnsRegistrar = new DnsRegistrar();
 	protected InstanceTagger tagger = new InstanceTagger();
 	protected OsScriptGenerator scriptGenerator = new OsScriptGenerator();
@@ -46,9 +47,9 @@ public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerRespons
 			scriptGenerator);
 	
 	@Override
-	public NamerResponse process(NamerRequest req, LambdaContext context) throws IOException {
+	public NamingResponse process(NamingRequest req, LambdaContext context) throws IOException {
 		
-		NamerResponse resp = new NamerResponse();
+		NamingResponse resp = new NamingResponse();
 		
 		// reserve the next available name in DB
 		ReservedName name = reserver.reserve(req, context);
@@ -76,12 +77,12 @@ public class NamerFunction extends JsonLambdaFunction<NamerRequest, NamerRespons
 	}
 	
 	@Override
-	public NamerResponse error(LambdaContext context, String error) {
-		return new NamerResponse().withError(error);
+	public NamingResponse error(LambdaContext context, String error) {
+		return new NamingResponse().withError(error);
 	}
 	
 	@Override
-	public boolean validate(NamerRequest req, LambdaContext context) {
+	public boolean validate(NamingRequest req, LambdaContext context) {
 		return validator.validate(req, context);
 	}
 }

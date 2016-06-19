@@ -24,8 +24,8 @@ import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
 import com.amazonaws.services.simpledb.model.UpdateCondition;
 import com.amazonaws.util.DateUtils;
-import com.deploymentio.ec2namer.DenameRequest;
-import com.deploymentio.ec2namer.NamerRequest;
+import com.deploymentio.ec2namer.DenamingRequest;
+import com.deploymentio.ec2namer.NamingRequest;
 import com.deploymentio.ec2namer.RequestedName;
 
 public class NamerDB {
@@ -40,7 +40,7 @@ public class NamerDB {
 	 *            the namer request
 	 * @return a sorted of reserved indexes for this group
 	 */
-	public SortedSet<IndexInUse> getGroupIndxesInUse(NamerRequest req) {
+	public SortedSet<IndexInUse> getGroupIndxesInUse(NamingRequest req) {
 		
 		TreeSet<IndexInUse> set = new TreeSet<>();
 		
@@ -77,7 +77,7 @@ public class NamerDB {
 	 *            index to reserve
 	 * @return the reserved name if successful or <code>null</code> otherwise
 	 */
-	public ReservedName reserveGroupIndex(NamerRequest req, int indexToReserve) throws IOException {
+	public ReservedName reserveGroupIndex(NamingRequest req, int indexToReserve) throws IOException {
 		
 		ReservedName name = new ReservedName(req.getGroup(), indexToReserve);
 		String fqdn = req.createFqdn(name.getHostname());
@@ -110,12 +110,12 @@ public class NamerDB {
 		return null;
 	}
 	
-	public DenameRequest findReservedNameForDenaming(String instanceId) {
+	public DenamingRequest findReservedNameForDenaming(String instanceId) {
 		
 		SelectResult result = sdb.select(new SelectRequest("select * from `" + dbDomain + "` where `inst-id`='" + instanceId + "' limit 1"));
 		if (!result.getItems().isEmpty()) {
 			Map<String, String> attributes = getItemAsMap(result.getItems().get(0));
-			DenameRequest req = new DenameRequest();
+			DenamingRequest req = new DenamingRequest();
 			req.setAlwaysUsePublicName("true".equals(attributes.get("use-public-name")));
 			req.setBaseDomain(attributes.get("base-domain"));
 			req.setEnvironment(attributes.get("env"));
@@ -128,10 +128,12 @@ public class NamerDB {
 		return null;
 	}
 	
-	public void unreserve(DenameRequest req) {
-		String fqdn = req.createFqdn(req.getReservedName().getHostname());
-		UpdateCondition expected = new UpdateCondition("inst-id", req.getInstanceId(), true);
-		sdb.deleteAttributes(new DeleteAttributesRequest(dbDomain, fqdn).withExpected(expected));
+	public void unreserve(DenamingRequest req) {
+		if (req != null) {
+			String fqdn = req.createFqdn(req.getReservedName().getHostname());
+			UpdateCondition expected = new UpdateCondition("inst-id", req.getInstanceId(), true);
+			sdb.deleteAttributes(new DeleteAttributesRequest(dbDomain, fqdn).withExpected(expected));
+		}
 	}
 	
 	protected List<String> getRequestedNamesFromString(String namesAsString) {

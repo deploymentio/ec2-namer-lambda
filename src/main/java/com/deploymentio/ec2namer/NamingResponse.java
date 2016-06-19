@@ -22,7 +22,7 @@ package com.deploymentio.ec2namer;
  * to set the hostname of the calling system.
  */
 
-public class NamerResponse {
+public class NamingResponse {
 
 	private boolean success;
 	private String error;
@@ -42,7 +42,7 @@ public class NamerResponse {
 	public void setError(String error) {
 		this.error = error;
 	}
-	public NamerResponse withError(String error) {
+	public NamingResponse withError(String error) {
 		setError(error);
 		return this;
 	}

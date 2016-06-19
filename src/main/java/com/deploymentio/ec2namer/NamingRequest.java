@@ -24,7 +24,7 @@ import java.util.Map;
  * Represents the naming request
  */
 
-public class NamerRequest implements InstanceNamingRequest {
+public class NamingRequest implements InstanceNamingRequest {
 
 	private String environment;
 	private String baseDomain;
