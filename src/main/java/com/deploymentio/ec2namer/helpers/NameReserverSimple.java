@@ -34,7 +34,7 @@ public class NameReserverSimple extends NameReserver {
 			idx = indexInUse.getIndex();
 		}
 
-		return db.reserveGroupIndex(req, idx+1);
+		return db.reserveGroupIndex(req, context, idx+1);
 	}
 	
 

@@ -20,7 +20,7 @@
 
 	<groupId>com.deploymentio</groupId>
 	<artifactId>ec2-namer-lambda</artifactId>
-	<version>1.0</version>
+	<version>1.0.005</version>
 	<packaging>jar</packaging>
 
 	<name>ec2-namer-lambda</name>

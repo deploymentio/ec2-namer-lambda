@@ -21,7 +21,6 @@ import java.io.IOException;
 import com.deploymentio.ec2namer.helpers.DnsRegistrar;
 import com.deploymentio.ec2namer.helpers.InstanceTagger;
 import com.deploymentio.ec2namer.helpers.NameReserver;
-import com.deploymentio.ec2namer.helpers.NameReserverSimple;
 import com.deploymentio.ec2namer.helpers.NamerRequestValidator;
 import com.deploymentio.ec2namer.helpers.OsScriptGenerator;
 import com.deploymentio.ec2namer.helpers.ReservedName;
@@ -35,7 +34,7 @@ import com.deploymentio.ec2namer.helpers.ReservedName;
 
 public class NameFunction extends JsonLambdaFunction<NamingRequest, NamingResponse, NamingResponse> {
 
-	protected NameReserver reserver = new NameReserverSimple();
+	protected NameReserver reserver = new NameReserver();
 	protected DnsRegistrar dnsRegistrar = new DnsRegistrar();
 	protected InstanceTagger tagger = new InstanceTagger();
 	protected OsScriptGenerator scriptGenerator = new OsScriptGenerator();

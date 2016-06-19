@@ -33,7 +33,7 @@ public class DenameFunction extends JsonLambdaFunction<InstanceEvent, Boolean, B
 	
 	@Override
 	public Boolean process(InstanceEvent evt, LambdaContext context) throws IOException {
-		DenamingRequest request = reserver.unreserve(evt.getDetails().getInstanceId(), context);
+		DenamingRequest request = reserver.unreserve(evt.getDetail().getInstanceId(), context);
 		if (request != null) {
 			dnsRegistrar.deregister(request, context);
 			return Boolean.TRUE;
@@ -44,6 +44,6 @@ public class DenameFunction extends JsonLambdaFunction<InstanceEvent, Boolean, B
 	
 	@Override
 	public boolean validate(InstanceEvent evt, LambdaContext context) {
-		return "aws.ec2".equals(evt.getSource()) && "shutting-down".equals(evt.getDetails().getState());
+		return "aws.ec2".equals(evt.getSource()) && "shutting-down".equals(evt.getDetail().getState());
 	}
 }

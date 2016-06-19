@@ -16,10 +16,26 @@
 
 package com.deploymentio.ec2namer;
 
-public interface InstanceNamingRequest {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class InstanceEventDetail {
+
+	@JsonProperty("instance-id")
+	private String instanceId;
+	private String state;
 	
-	public String getInstanceId();
-	public boolean isAlwaysUsePublicName();
-	public String createFqdn(String name);
-	
+	public String getInstanceId() {
+		return instanceId;
+	}
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
 }

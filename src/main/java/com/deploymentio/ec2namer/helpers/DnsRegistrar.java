@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.amazonaws.services.ec2.model.Instance;
@@ -48,7 +47,6 @@ import com.amazonaws.services.route53.model.ResourceRecordSet;
 import com.amazonaws.services.route53.model.Tag;
 import com.amazonaws.services.route53.model.TagResourceType;
 import com.deploymentio.ec2namer.DenamingRequest;
-import com.deploymentio.ec2namer.InstanceNamingRequest;
 import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamingRequest;
 import com.deploymentio.ec2namer.RequestedName;
@@ -65,8 +63,8 @@ public class DnsRegistrar implements Validator {
 		// delete the additional names
 		String zoneId = findHostedZoneId(context, req.getBaseDomain());
 		String setId = req.getInstanceId() + "-" + req.createFqdn(req.getReservedName().getHostname());
-		String marker = getReversedDomain(req.getEnvironment(), req.getBaseDomain());
-		String justDomain = req.createFqdn("") + ".";
+		String marker = req.getEnvironment() + "." + req.getBaseDomain();
+		String justDomain = "." + marker + ".";
 		
 		Outer: do {
 			
@@ -74,7 +72,6 @@ public class DnsRegistrar implements Validator {
 					new ListResourceRecordSetsRequest(zoneId)
 						.withStartRecordType(RRType.CNAME)
 						.withStartRecordName(marker));			
-			marker = result.getNextRecordName();
 			
 			for (ResourceRecordSet set : result.getResourceRecordSets()) {
 		
@@ -94,22 +91,32 @@ public class DnsRegistrar implements Validator {
 				}
 			}
 
+			marker = result.getNextRecordName();
+			
 		} while(changes.size() < req.getRequestedNames().size() && !StringUtils.isEmpty(marker));
 		
 		// delete the reserved name record too
-		changes.add(getDeleteChange(req, context, req.getReservedName().getHostname()));
+		String recordName = req.createFqdn(req.getReservedName().getHostname());
+		ListResourceRecordSetsResult result = route53.listResourceRecordSets(
+				new ListResourceRecordSetsRequest(zoneId)
+					.withStartRecordType(req.getReservedNameRecordType())
+					.withStartRecordName(recordName));
+		
+		if (!result.getResourceRecordSets().isEmpty()) {
+			ResourceRecordSet set = result.getResourceRecordSets().get(0);
+			ResourceRecord record = set.getResourceRecords().get(0);
+			if (record.getValue().equals(req.getReservedNameRecordValue())) {
+				changes.add(new Change(ChangeAction.DELETE, set));
+			}
+		}
 		
 		// execute the changes
-		route53.changeResourceRecordSets(new ChangeResourceRecordSetsRequest(zoneId, new ChangeBatch().withChanges(changes))) ;
-
+		if (!changes.isEmpty()) {
+			route53.changeResourceRecordSets(new ChangeResourceRecordSetsRequest(zoneId, new ChangeBatch().withChanges(changes))) ;
+		}
+		
 		// delete all health-checks for this instance
 		deleteHealthChecks(req.getInstanceId(), context);
-	}
-	
-	protected String getReversedDomain(String environment, String baseDomain) {
-		String[] split = StringUtils.split(baseDomain, '.');
-		ArrayUtils.reverse (split);
-		return StringUtils.join(split, '.') + "." + environment + "." ;
 	}
 	
 	/**
@@ -145,24 +152,14 @@ public class DnsRegistrar implements Validator {
 		route53.changeResourceRecordSets(new ChangeResourceRecordSetsRequest(zoneId, new ChangeBatch().withChanges(changes))) ;
 	}
 	
-	protected Change getDeleteChange(InstanceNamingRequest req, LambdaContext context, String name) {
-		return getChange(req, context, name, ChangeAction.DELETE);
-	}
-	
-	protected Change getCreateChange(InstanceNamingRequest req, LambdaContext context, String name) {
-		return getChange(req, context, name, ChangeAction.UPSERT);
-	}
-	
-	protected Change getChange(InstanceNamingRequest req, LambdaContext context, String name, ChangeAction action) {
-		Instance instance = instanceLookup.lookup(context, req.getInstanceId());
-		boolean isVpc = req.isAlwaysUsePublicName() ? false : !StringUtils.isEmpty(instance.getVpcId());
-		RRType recordType = isVpc ? RRType.A : RRType.CNAME;
+	protected Change getCreateChange(NamingRequest req, LambdaContext context, String name) {
+		RRType recordType = instanceLookup.getReservedNameRecordType(context, req.getInstanceId(), req.isAlwaysUsePublicName());
 		
 		ResourceRecordSet set = new ResourceRecordSet(req.createFqdn(name) + ".", recordType);
 		set.withTTL(60l) ;
-		set.withResourceRecords(new ResourceRecord(isVpc ? instance.getPrivateIpAddress() : instance.getPublicDnsName()));
+		set.withResourceRecords(new ResourceRecord(instanceLookup.getReservedNameRecordValue(context, req.getInstanceId(), req.isAlwaysUsePublicName())));
 		
-		return new Change(action, set);
+		return new Change(ChangeAction.UPSERT, set);
 	}
 	
 	protected Change getCreateChange(NamingRequest req, LambdaContext context, RequestedName additionalName, String assignedName) {
@@ -176,12 +173,12 @@ public class DnsRegistrar implements Validator {
 		ResourceRecordSet set = new ResourceRecordSet(fullAdditionalName + ".", RRType.CNAME)
 			.withTTL(60l)
 			.withResourceRecords(new ResourceRecord(usePublicHostname ? instance.getPublicDnsName() : fullAssignedName))
-			.withSetIdentifier(instance.getInstanceId() + "-" + fullAssignedName)
+			.withSetIdentifier(req.getInstanceId() + "-" + fullAssignedName)
 			.withWeight(Long.valueOf(additionalName.getWeight()));
 		
 		if (additionalName.isHealthChecked()) {
 			
-			String uuid = instance.getInstanceId() + "-" + UUID.randomUUID().toString();
+			String uuid = req.getInstanceId() + "-" + UUID.randomUUID().toString();
 			String hcId = null;
 
 			for (int i = 0; i < 5; i++) {

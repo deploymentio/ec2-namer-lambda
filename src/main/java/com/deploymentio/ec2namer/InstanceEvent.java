@@ -32,7 +32,7 @@ public class InstanceEvent {
 	
 	@JsonProperty("detail-type")
 	private String detailType;
-	private InstanceEventDetails details;
+	private InstanceEventDetail detail;
 
 	public String getId() {
 		return id;
@@ -70,10 +70,10 @@ public class InstanceEvent {
 	public void setDetailType(String detailType) {
 		this.detailType = detailType;
 	}
-	public InstanceEventDetails getDetails() {
-		return details;
+	public InstanceEventDetail getDetail() {
+		return detail;
 	}
-	public void setDetails(InstanceEventDetails details) {
-		this.details = details;
+	public void setDetail(InstanceEventDetail detail) {
+		this.detail = detail;
 	}
 }

@@ -19,6 +19,7 @@ package com.deploymentio.ec2namer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.util.Date;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -39,7 +40,12 @@ public class JsonLambdaFunctionRunner {
 			when(context.getLogger()).thenReturn(logger);
 			
 			JsonLambdaFunction func = (JsonLambdaFunction) Class.forName(args[0]).newInstance();
-			func.handleRequest(System.in, System.out, context);
+			if (args.length > 1) {
+				ByteArrayInputStream inp = new ByteArrayInputStream(args[1].getBytes());
+				func.handleRequest(inp, System.out, context);
+			} else {
+				func.handleRequest(System.in, System.out, context);
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();

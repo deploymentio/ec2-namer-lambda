@@ -16,24 +16,34 @@
 
 package com.deploymentio.ec2namer;
 
+import java.util.Collections;
 import java.util.List;
 
+import com.amazonaws.services.route53.model.RRType;
 import com.deploymentio.ec2namer.helpers.ReservedName;
 
-public class DenamingRequest implements InstanceNamingRequest {
+public class DenamingRequest {
 
 	private String instanceId;
 	private String environment;
 	private String baseDomain;
 	private ReservedName reservedName;
-	private List<String> requestedNames;
-	private boolean alwaysUsePublicName;
+	private RRType reservedNameRecordType;
+	private String reservedNameRecordValue;
 	
-	public boolean isAlwaysUsePublicName() {
-		return alwaysUsePublicName;
+	private List<String> requestedNames = Collections.emptyList();
+	
+	public RRType getReservedNameRecordType() {
+		return reservedNameRecordType;
 	}
-	public void setAlwaysUsePublicName(boolean alwaysUsePublicName) {
-		this.alwaysUsePublicName = alwaysUsePublicName;
+	public void setReservedNameRecordType(RRType reservedNameRecordType) {
+		this.reservedNameRecordType = reservedNameRecordType;
+	}
+	public String getReservedNameRecordValue() {
+		return reservedNameRecordValue;
+	}
+	public void setReservedNameRecordValue(String reservedNameRecordValue) {
+		this.reservedNameRecordValue = reservedNameRecordValue;
 	}
 	public String getInstanceId() {
 		return instanceId;

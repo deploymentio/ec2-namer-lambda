@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.Attribute;
@@ -25,12 +26,14 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 import com.amazonaws.services.simpledb.model.UpdateCondition;
 import com.amazonaws.util.DateUtils;
 import com.deploymentio.ec2namer.DenamingRequest;
+import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamingRequest;
 import com.deploymentio.ec2namer.RequestedName;
 
 public class NamerDB {
 
 	protected AmazonSimpleDB sdb = new AmazonSimpleDBClient();
+	protected Ec2InstanceLookup instanceLookup = new Ec2InstanceLookup();
 	protected String dbDomain = "namer";
 	
 	/**
@@ -73,11 +76,13 @@ public class NamerDB {
 	 * 
 	 * @param req
 	 *            the namer request
+	 * @param context
+	 *            the lambda function execution context
 	 * @param indexToReserve
 	 *            index to reserve
 	 * @return the reserved name if successful or <code>null</code> otherwise
 	 */
-	public ReservedName reserveGroupIndex(NamingRequest req, int indexToReserve) throws IOException {
+	public ReservedName reserveGroupIndex(NamingRequest req, LambdaContext context, int indexToReserve) throws IOException {
 		
 		ReservedName name = new ReservedName(req.getGroup(), indexToReserve);
 		String fqdn = req.createFqdn(name.getHostname());
@@ -90,12 +95,13 @@ public class NamerDB {
 				.withItemName(fqdn)
 				.withAttributes(
 					new ReplaceableAttribute("fqdn", fqdn, true),
+					new ReplaceableAttribute("rec-type", instanceLookup.getReservedNameRecordType(context, req.getInstanceId(), req.isAlwaysUsePublicName()).name(), true),
+					new ReplaceableAttribute("rec-value", instanceLookup.getReservedNameRecordValue(context, req.getInstanceId(), req.isAlwaysUsePublicName()), true),
 					new ReplaceableAttribute("base-domain", req.getBaseDomain(), true),
 					new ReplaceableAttribute("env", req.getEnvironment(), true),
 					new ReplaceableAttribute("group", req.getGroup(), true),
 					new ReplaceableAttribute("idx", String.valueOf(name.getIndex()), true),
 					new ReplaceableAttribute("inst-id", req.getInstanceId(), true),
-					new ReplaceableAttribute("use-public-name", String.valueOf(req.isAlwaysUsePublicName()), true),
 					new ReplaceableAttribute("names", getRequestedNamesAsString(req.getRequestedNames()), true),
 					new ReplaceableAttribute("created", DateUtils.formatISO8601Date(new Date()), true)));
 			
@@ -116,7 +122,8 @@ public class NamerDB {
 		if (!result.getItems().isEmpty()) {
 			Map<String, String> attributes = getItemAsMap(result.getItems().get(0));
 			DenamingRequest req = new DenamingRequest();
-			req.setAlwaysUsePublicName("true".equals(attributes.get("use-public-name")));
+			req.setReservedNameRecordType(RRType.fromValue(attributes.get("rec-type")));
+			req.setReservedNameRecordValue(attributes.get("rec-value"));
 			req.setBaseDomain(attributes.get("base-domain"));
 			req.setEnvironment(attributes.get("env"));
 			req.setInstanceId(instanceId);

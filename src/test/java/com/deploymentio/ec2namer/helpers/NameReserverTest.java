@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.junit.Before;
@@ -110,7 +109,7 @@ public class NameReserverTest {
 		ReservedName name = reserver.reserve(goodRequest, context);
 		assertNotNull(name);
 		assertEquals(expectedIndexToReserve, name.getIndex());
-		verify(reserver.db).reserveGroupIndex(goodRequest, expectedIndexToReserve);
+		verify(reserver.db).reserveGroupIndex(goodRequest, context, expectedIndexToReserve);
 	}
 
 	@Test
@@ -120,6 +119,6 @@ public class NameReserverTest {
 
 		ReservedName name = reserver.reserve(goodRequest, context);
 		assertNull(name);
-		verify(reserver.db, never()).reserveGroupIndex(any(NamingRequest.class), Mockito.anyInt());
+		verify(reserver.db, never()).reserveGroupIndex(any(NamingRequest.class), any(LambdaContext.class), Mockito.anyInt());
 	}
 }

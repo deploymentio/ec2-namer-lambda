@@ -20,11 +20,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Represents the naming request
  */
 
-public class NamingRequest implements InstanceNamingRequest {
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class NamingRequest {
 
 	private String environment;
 	private String baseDomain;
