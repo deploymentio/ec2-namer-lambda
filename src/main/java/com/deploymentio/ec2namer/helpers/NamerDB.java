@@ -136,11 +136,9 @@ public class NamerDB {
 	}
 	
 	public void unreserve(DenamingRequest req) {
-		if (req != null) {
-			String fqdn = req.createFqdn(req.getReservedName().getHostname());
-			UpdateCondition expected = new UpdateCondition("inst-id", req.getInstanceId(), true);
-			sdb.deleteAttributes(new DeleteAttributesRequest(dbDomain, fqdn).withExpected(expected));
-		}
+		String fqdn = req.createFqdn(req.getReservedName().getHostname());
+		UpdateCondition expected = new UpdateCondition("inst-id", req.getInstanceId(), true);
+		sdb.deleteAttributes(new DeleteAttributesRequest(dbDomain, fqdn).withExpected(expected));
 	}
 	
 	protected List<String> getRequestedNamesFromString(String namesAsString) {

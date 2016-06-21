@@ -61,28 +61,6 @@ public class NameReserver implements Validator {
 		return new ReservedName(req.getGroup(), 1);
 	}
 	
-
-	/**
-	 * Unreserves the name for the given instance-id
-	 * 
-	 * @param instanceId
-	 *            the instance ID for which the name needs to be unreserved
-	 * @param context
-	 *            the lambda function execution context
-	 * @return the details of unreserving of the name
-	 * @throws IOException
-	 *             if the name cannot be unreserved
-	 */
-	public DenamingRequest unreserve(String instanceId, LambdaContext context) throws IOException {
-		
-		// need to first find the reserved name from DB (if it exists) given
-		// instance-id
-		//
-		// if found, need to un-reserve it - again through the db
-		
-		return null;
-	}
-	
 	@Override
 	public boolean validate(NamingRequest req, LambdaContext context) {
 		

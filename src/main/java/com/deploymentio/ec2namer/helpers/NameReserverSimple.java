@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.deploymentio.ec2namer.DenamingRequest;
 import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamingRequest;
 
@@ -35,14 +34,6 @@ public class NameReserverSimple extends NameReserver {
 		}
 
 		return db.reserveGroupIndex(req, context, idx+1);
-	}
-	
-
-	@Override
-	public DenamingRequest unreserve(String instanceId, LambdaContext context) throws IOException {
-		DenamingRequest request = db.findReservedNameForDenaming(instanceId);
-		db.unreserve(request);
-		return request;
 	}
 	
 	@Override
