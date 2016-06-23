@@ -18,6 +18,8 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamerRequest;
 
@@ -67,6 +69,26 @@ public class NameReserver implements Validator {
 		// TODO: validate that we have the required fields in the request:
 		// group, environment, instance-id, and base-domain. This method will be
 		// called before reserve() is called.
+		
+		if (StringUtils.isEmpty(req.getGroup())) {
+			context.log("Group is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getEnvironment())) {
+			context.log("Environment is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getInstanceId())) {
+			context.log("Instance-id is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getBaseDomain())) {
+			context.log("Base-domain is missing");
+			return false;
+		}
 		
 		return true;
 	}
