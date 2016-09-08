@@ -18,7 +18,8 @@ package com.deploymentio.ec2namer.helpers;
 
 import java.io.IOException;
 
-import com.deploymentio.ec2namer.DenamingRequest;
+import org.apache.commons.lang3.StringUtils;
+
 import com.deploymentio.ec2namer.LambdaContext;
 import com.deploymentio.ec2namer.NamingRequest;
 
@@ -41,34 +42,77 @@ public class NameReserver implements Validator {
 	 */
 	public ReservedName reserve(NamingRequest req, LambdaContext context) throws IOException {
 
-		// names are based on group and an index. If group is 'bar' and index is
-		// 12, then the name would be 'bar012'.
-		
 		/*
-		 * TODO: use 'db' to figure out what is the next available index, use the following rules
+		 * names are based on group and an index. If group is 'bar' and index is
+		 * 12, then the name would be 'bar012'.
+		 * 
+		 * use 'db' to figure out what is the next available index, use the following rules
 		 *       - first valid index to return is 1
 		 *       - last valid index is 999
 		 *       - gaps should be filled first - if 1, 3, and 4 are in use, return 2
 		 *       - if all indexes are in use 1-999, don't reserve anything, and return null
 		 *       - if any of the existing index in use has the same instance-id as this request, reuse that index (this should be highest priority)
 		 *       
-		 * TODO: also, use 'db' to reserve the index so others don't take it
+		 * also, use 'db' to reserve the index so others don't take it
 		 */
+
+		boolean gapFound = false;
+		int lastIdxInUse = 0;
 		
-		// Temporarily, for testing, return the name based on the group name -
-		// no actual reservation is being made here. Obviously, this will return
-		// the same index/name everytime it is called.
-		return new ReservedName(req.getGroup(), 1);
+		for (IndexInUse indexInUse : db.getGroupIndxesInUse(req)) {
+
+			// this instance is already assigned a name, so return that
+			if (indexInUse.getInstanceId().equals(req.getInstanceId())) {
+				return reserve(req, context, indexInUse.getIndex());
+			}
+			
+			// if we have not found a gap, keep looking
+			if (!gapFound) {
+				if (indexInUse.getIndex() - lastIdxInUse > 1) {
+					gapFound = true;
+				} else {
+					lastIdxInUse = indexInUse.getIndex();
+				}
+			}
+		}
+		
+		// last valid index is 999
+		if (lastIdxInUse == 999) {
+			return null;
+		}
+		
+		// reserve and then return the info
+		return reserve(req, context, lastIdxInUse+1);
+	}
+
+	private ReservedName reserve(NamingRequest req, LambdaContext context, int idx) throws IOException {
+		db.reserveGroupIndex(req, context, idx);
+		return new ReservedName(req.getGroup(), idx);
 	}
 	
 	@Override
 	public boolean validate(NamingRequest req, LambdaContext context) {
 		
-		// TODO: validate that we have the required fields in the request:
-		// group, environment, instance-id, and base-domain. This method will be
-		// called before reserve() is called.
+		if (StringUtils.isEmpty(req.getGroup())) {
+			context.log("Group is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getEnvironment())) {
+			context.log("Environment is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getInstanceId())) {
+			context.log("Instance-id is missing");
+			return false;
+		}
+		
+		if (StringUtils.isEmpty(req.getBaseDomain())) {
+			context.log("Base-domain is missing");
+			return false;
+		}
 		
 		return true;
 	}
-	
 }

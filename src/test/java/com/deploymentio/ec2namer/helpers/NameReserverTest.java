@@ -35,7 +35,7 @@ public class NameReserverTest {
 		goodRequest = new NamingRequest();
 		goodRequest.setBaseDomain("base.com");
 		goodRequest.setEnvironment("env");
-		goodRequest.setInstanceId("i-7");
+		goodRequest.setInstanceId("i-some-id");
 		goodRequest.setGroup("web");
 		
 		Context inner = mock(Context.class);
@@ -94,11 +94,13 @@ public class NameReserverTest {
 
 	@Test
 	public void testReserveNameWithInstanceIdInUse() throws IOException {
+		goodRequest.setInstanceId("i-7");
 		assertReservedCorrectIndex(getMockIndexesInUseRange(10), 7);
 	}
 
 	@Test
 	public void testReserveNameWithInstanceIdInUseIgnoresGaps() throws IOException {
+		goodRequest.setInstanceId("i-7");
 		assertReservedCorrectIndex(getMockIndexesInUse(1, 4, 7, 8), 7);
 	}
 	
